@@ -20,7 +20,7 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v3
 
-      - name: Publish Package and create Tag and Releases
+      - name: Publish Package
         uses: Commandcracker/lstore-put@v1
         with:
           username: ${{ secrets.LSTORE_USERNAME }}
