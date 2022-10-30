@@ -1,0 +1,25 @@
+name: lStore put
+description: Automatically publish packages to lStore
+author: Commandcracker
+
+branding:
+  icon: upload
+  color: green
+
+inputs:
+  username:
+    description: LevelOS username
+    required: true
+  password:
+    description: Password for the LevelOS user
+    required: true
+  path:
+    description: The path to the package
+    required: true
+  title:
+    description: The title of the package
+    required: true
+
+runs:
+  using: docker
+  image: Dockerfile
