@@ -3,13 +3,16 @@
 
 # build-in modules:
 from time import time
-from os import getpid, listdir, getenv
-from os.path import join
+from os import getpid, getenv, chdir
+from os.path import isdir
 from random import Random
+from pathlib import Path
 
 # pip modules:
 from requests import post, Response
 from rich.traceback import install
+from rich import print
+from rich.console import Console
 
 
 class RandomNameSequence:
@@ -152,7 +155,7 @@ class lStore():
 def main():
     title = getenv("INPUT_TITLE")
 
-    print("Logging in ...")
+    print("[bright_green]Logging in [bright_yellow]...")
     levelos_api = LevelOSAPI(
         username=getenv("INPUT_USERNAME"),
         password=getenv("INPUT_PASSWORD")
@@ -160,35 +163,43 @@ def main():
 
     temp_fodler = f"temp-{next(RandomNameSequence())}"
 
-    print(f"Creating Temporay Folder ({temp_fodler}) ...")
+    print(
+        f"[bright_green]Creating Temporay Folder ([bright_magenta]{temp_fodler}[bright_green]) [bright_yellow]...")
     levelos_api.level_cloud.mkdir(temp_fodler)
 
     data_folder = getenv("INPUT_PATH")
-    for file_name in listdir(data_folder):
-        location = join(data_folder, file_name)
-        with open(location, "r") as file:
-            print(f"Uploading ({temp_fodler}/{file_name}) ...")
-            content = file.read()
-            levelos_api.level_cloud.upload(
-                f"{temp_fodler}/{file_name}",
-                content=content
-            )
-            file.close()
+    chdir(data_folder)
 
-    print(f"Uploading package to LStore ...")
+    for path in Path(".").rglob('*'):
+        if isdir(path):
+            print(
+                f"[bright_green]Creating folder ([bright_magenta]{temp_fodler}/{path}[bright_green]) [bright_yellow]...")
+            levelos_api.level_cloud.mkdir(f"{temp_fodler}/{path}")
+        else:
+            with open(path, "r") as file:
+                print(
+                    f"[bright_green]Uploading ([bright_magenta]{temp_fodler}/{path}[bright_green]) [bright_yellow]...")
+                content = file.read()
+                levelos_api.level_cloud.upload(
+                    f"{temp_fodler}/{path}",
+                    content=content
+                )
+                file.close()
+
+    print(f"[bright_green]Uploading package to LStore [bright_yellow]...")
     response = levelos_api.lstore.put(title, temp_fodler)
 
-    print("Uploaded as " + response.text)
+    print("[bright_green]Uploaded as [bright_blue]" + response.text)
     print(
-        "Run \"lStore get " + title +
-        "\" or \"lStore get " + response.text +
-        "\" to download anywhere"
+        "[bright_green]Run \"[white]lStore get " + title +
+        "\"[bright_green] or \"[white]lStore get " + response.text +
+        "\"[bright_green] to download anywhere"
     )
 
-    print("Clean Up ...")
+    print("[bright_green]Clean Up [bright_yellow]...")
     levelos_api.level_cloud.delete(temp_fodler)
 
 
 if __name__ == "__main__":
-    install()
+    install(console=Console(force_terminal=True))
     main()
