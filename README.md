@@ -21,7 +21,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Publish Package
-        uses: Commandcracker/lstore-put@v1
+        uses: Commandcracker/lstore-put@v2
         with:
           username: ${{ secrets.LSTORE_USERNAME }}
           password: ${{ secrets.LSTORE_PASSWORD }}
